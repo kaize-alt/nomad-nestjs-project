@@ -16,7 +16,7 @@ export class User {
   full_name: string;
 
   @Prop({ required: true })
-  login: string;
+  email: string;
 
   @Prop({ required: true })
   password: string;
