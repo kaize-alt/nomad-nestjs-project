@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { GroupsController } from './groups.controller';
+import { GroupsService } from './groups.service';
 import { UsersService } from '../users/users.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './strategies/local.strategy';
 import { AuthConfig } from '../config/auth.config';
 import { ConfigModule } from '../config/config.module';
-import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -18,7 +16,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       useExisting: AuthConfig,
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],
+  controllers: [GroupsController],
+  providers: [GroupsService, UsersService],
 })
-export class AuthModule {}
+export class GroupsModule {}

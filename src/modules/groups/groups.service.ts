@@ -2,10 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../database/models/user.model';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateGroupsDto, LoginGroupsDto } from './dto';
 
 @Injectable()
-export class AuthService {
+export class GroupsService {
   constructor(
     private readonly usersService: UsersService,
     private jwtService: JwtService,
@@ -34,7 +34,7 @@ export class AuthService {
     }
   }
 
-  login(userData: LoginUserDto, user: UserDocument) {
+  login(userData: LoginGroupsDto, user: UserDocument) {
     const { email } = userData;
     const payload = { email, user_id: user._id };
     return {
