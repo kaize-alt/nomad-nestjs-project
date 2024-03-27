@@ -1,48 +1,69 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
+import { Injectable } from '@nestjs/common';
+import { GroupRepository } from '../database/repositories/group.repository';
+import { CrudService } from '../../helpers/crud.service';
+import { GroupDocument } from '../database/models/group.model';
+import { CreateGroupDto } from './dto';
+import { ObjectId } from '../../helpers/types/objectid.type';
+import { UserRepository } from '../database/repositories/user.repository';
 import { UserDocument } from '../database/models/user.model';
-import { CreateGroupsDto, LoginGroupsDto } from './dto';
 
 @Injectable()
-export class GroupsService {
+export class GroupsService extends CrudService<GroupDocument> {
   constructor(
-    private readonly usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+    readonly groupRepository: GroupRepository,
+    readonly userRepository: UserRepository,
+  ) {
+    super(groupRepository);
+  }
 
-  async signup(userData) {
+  async createGroup(createGroupDto: CreateGroupDto) {
     try {
-      return await this.usersService.createUser(userData);
+      return await this.groupRepository.create(createGroupDto);
     } catch (error) {
       return error.message;
     }
   }
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<UserDocument | string> {
+  async findGroupById(group_id: ObjectId): Promise<GroupDocument> {
     try {
-      const user = await this.usersService.findOne({ email, password });
-      if (!user) {
-        return null;
-      }
-      return user;
+      return await this.groupRepository.findById(group_id);
     } catch (error) {
-      return error.data;
+      return error.message;
     }
   }
 
-  login(userData: LoginGroupsDto, user: UserDocument) {
-    const { email } = userData;
-    const payload = { email, user_id: user._id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  async deleteGroupById(group_id: ObjectId): Promise<GroupDocument> {
+    try {
+      return await this.groupRepository.deleteOne({ _id: group_id });
+    } catch (error) {
+      return error.message;
+    }
   }
 
-  async findAllUsers() {
-    return await this.usersService.find({})
+  async addStudentToGroup(
+    student_id: ObjectId,
+    group_id: ObjectId,
+  ): Promise<UserDocument> {
+    try {
+      const updatedStudent = await this.userRepository.updateOne(
+        { _id: student_id },
+        { group_id },
+      );
+      
+      await this.updateStudentsCount(group_id);
+
+      return updatedStudent;
+    } catch (error) {
+      return error.message;
+    }
   }
+
+  private async updateStudentsCount(group_id: ObjectId): Promise <void> {
+    const group = await this.groupRepository.findById(group_id);
+    if (group) {
+      const studentCount = await this.userRepository.count({ group_id });
+      group.studentCount = studentCount;
+      await group.save();
+    }
+  } 
 }

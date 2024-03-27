@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Types } from 'mongoose';
+import { ObjectId } from 'src/helpers/types/objectid.type';
 
 @Schema({
   collection: 'Users',
@@ -20,6 +21,9 @@ export class User {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ default: null, type: mongoose.Types.ObjectId })
+  group_id: ObjectId;
 
   @Prop({ default: false})
   is_deleted: boolean;

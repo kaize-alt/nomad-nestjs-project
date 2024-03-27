@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { UserSchema } from './models/user.model';
 import { UserRepository } from './repositories/user.repository';
+import { GroupRepository } from './repositories/group.repository';
+import { GroupSchema } from './models/group.model';
 
 @Global()
 @Module({
@@ -12,9 +14,13 @@ import { UserRepository } from './repositories/user.repository';
         name: 'Users',
         schema: UserSchema,
       },
+      {
+        name: 'Groups',
+        schema: GroupSchema,
+      },
     ]),
   ],
-  providers: [UserRepository],
-  exports: [UserRepository],
+  providers: [UserRepository, GroupRepository],
+  exports: [UserRepository, GroupRepository],
 })
 export class DatabaseModule {}

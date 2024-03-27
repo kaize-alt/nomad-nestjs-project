@@ -16,7 +16,7 @@ import { GroupsModule } from './modules/groups/groups.module';
     ConfigModule,
     DatabaseModule,
     UsersModule,
-    AuthModule,
+    AuthModule, 
     GroupsModule
   ],
 })
