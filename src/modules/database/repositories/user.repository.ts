@@ -10,4 +10,8 @@ export class UserRepository extends CrudRepository<UserDocument> {
   constructor(@InjectModel('Users') readonly model: Model<UserDocument>) {
     super(model);
   }
+
+  async countStudentsInGroup(groupId: string): Promise<number> {
+    return this.model.countDocuments({ group_id: groupId }).exec();
+  }
 }

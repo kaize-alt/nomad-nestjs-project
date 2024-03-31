@@ -6,6 +6,7 @@ import { CreateGroupDto } from './dto';
 import { ObjectId } from '../../helpers/types/objectid.type';
 import { UserRepository } from '../database/repositories/user.repository';
 import { UserDocument } from '../database/models/user.model';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GroupsService extends CrudService<GroupDocument> {
@@ -40,30 +41,22 @@ export class GroupsService extends CrudService<GroupDocument> {
     }
   }
 
-  async addStudentToGroup(
-    student_id: ObjectId,
-    group_id: ObjectId,
-  ): Promise<UserDocument> {
-    try {
-      const updatedStudent = await this.userRepository.updateOne(
-        { _id: student_id },
-        { group_id },
-      );
-      
-      await this.updateStudentsCount(group_id);
 
-      return updatedStudent;
-    } catch (error) {
-      return error.message;
-    }
+  async addStudentToGroup(student_id: Types.ObjectId, group_id: Types.ObjectId): Promise<UserDocument> {
+    const updatedStudent = await this.userRepository.updateOne({ _id: student_id }, { group_id });
+    await this.updateStudentsCount(group_id);
+    return updatedStudent;
   }
 
-  private async updateStudentsCount(group_id: ObjectId): Promise <void> {
+  private async updateStudentsCount(group_id: Types.ObjectId): Promise<void> {
+    console.log("group_id:", group_id);
     const group = await this.groupRepository.findById(group_id);
+    console.log("group:", group);
     if (group) {
-      const studentCount = await this.userRepository.count({ group_id });
-      group.studentCount = studentCount;
-      await group.save();
+      const studentCount = await this.userRepository.countStudentsInGroup(group_id.toString());
+      console.log("studentCount:", studentCount);
+      group.set({ studentCount: studentCount });
+        await group.save();
     }
-  } 
+  }
 }
