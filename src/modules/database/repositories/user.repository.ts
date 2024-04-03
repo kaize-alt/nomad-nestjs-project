@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { UserDocument } from '../models/user.model';
 import { CrudService } from '../../../helpers/crud.service';
 import { CrudRepository } from './crud.repository';
+import { ObjectId } from 'src/helpers/types/objectid.type';
 
 @Injectable()
 export class UserRepository extends CrudRepository<UserDocument> {
@@ -11,7 +12,7 @@ export class UserRepository extends CrudRepository<UserDocument> {
     super(model);
   }
 
-  async countStudentsInGroup(groupId: string): Promise<number> {
+  async countStudentsInGroup(groupId: ObjectId): Promise<number> {
     return this.model.countDocuments({ group_id: groupId }).exec();
   }
 }

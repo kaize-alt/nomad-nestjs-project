@@ -11,7 +11,7 @@ import { ObjectId } from '../../../helpers/types/objectid.type';
   },
 })
 export class Group {
-  _id: Types.ObjectId;
+  _id: ObjectId;
 
   @Prop({ required: true })
   name: string;

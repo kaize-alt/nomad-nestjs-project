@@ -11,6 +11,8 @@ import { GroupsService } from './groups.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateGroupDto } from './dto';
 import { GroupDocument } from '../database/models/group.model';
+import { IdValidationPipe } from 'src/helpers/pipes/id-validation.pipe';
+import { ObjectId } from 'src/helpers/types/objectid.type';
 
 @ApiTags('Groups')
 @Controller('groups')
@@ -44,15 +46,27 @@ export class GroupsController {
   }
 
   @ApiOperation({ summary: 'Добавить студента в группу' })
-  @Put(':user_id/:group_id')
+  @Post(':user_id/:group_id')
   @ApiParam({ name: 'user_id', type: 'string', required: true })
   @ApiParam({ name: 'group_id', type: 'string', required: true })
   async addStudentToGroup(
-    @Param('user_id') user_id,
-    @Param('group_id') group_id,
+    @Param('user_id', IdValidationPipe) user_id: ObjectId,
+    @Param('group_id', IdValidationPipe) group_id: ObjectId,
   ) {
     const updatedStudent = await this.groupsService.addStudentToGroup(user_id, group_id);
 
     return updatedStudent;
+  }
+
+  @ApiOperation({ summary: 'Изменить группу студента'})
+  @Put(':user_id/:group_id')
+  @ApiParam({ name: 'user_id', type: 'string', required: true })
+  @ApiParam({ name: 'group_id', type: 'string', required: true })
+  async changeStudentGroup(
+    @Param('user_id', IdValidationPipe) user_id: ObjectId,
+    @Param('group_id', IdValidationPipe) group_id: ObjectId,
+  ) {
+    const changeStudent = await this.groupsService.changeStudentGroup(user_id, group_id);
+    return changeStudent;
   }
 }

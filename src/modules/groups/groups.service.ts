@@ -42,21 +42,59 @@ export class GroupsService extends CrudService<GroupDocument> {
   }
 
 
-  async addStudentToGroup(student_id: Types.ObjectId, group_id: Types.ObjectId): Promise<UserDocument> {
-    const updatedStudent = await this.userRepository.updateOne({ _id: student_id }, { group_id });
-    await this.updateStudentsCount(group_id);
-    return updatedStudent;
-  }
+  async addStudentToGroup(
+    student_id: ObjectId,
+    group_id: ObjectId,
+  ): Promise<UserDocument> {
+    try {
+      const result = await this.userRepository.updateOne(
+        { _id: student_id },
+        { group_id: group_id },
+      );
 
-  private async updateStudentsCount(group_id: Types.ObjectId): Promise<void> {
-    console.log("group_id:", group_id);
-    const group = await this.groupRepository.findById(group_id);
-    console.log("group:", group);
-    if (group) {
-      const studentCount = await this.userRepository.countStudentsInGroup(group_id.toString());
-      console.log("studentCount:", studentCount);
-      group.set({ studentCount: studentCount });
+      if (result) {
+        const group = await this.groupRepository.findById(group_id);
+        group.studentCount += 1;
         await group.save();
+      }
+
+      return result;
+    } catch (error) {
+      return error.message;
     }
   }
+
+  async changeStudentGroup(
+    student_id: ObjectId,
+    group_id: ObjectId,
+  ): Promise<UserDocument | string> {
+    try {
+        const student = await this.userRepository.findById(student_id);
+        if (student) {
+            if (student.group_id === group_id) {
+                return "Student is already in the specified group.";
+            } else {
+                if (student.group_id) {
+                    const current_group_id = student.group_id;
+                    await this.userRepository.updateOne(
+                        { _id: student_id },
+                        { $unset: { group_id: "" } }
+                    );
+                    const current_group = await this.groupRepository.findById(current_group_id);
+                    if (current_group) {
+                        current_group.studentCount -= 1;
+                        await current_group.save();
+                    }
+                }
+                await this.addStudentToGroup(student_id, group_id);
+                return "Student group changed successfully.";
+            }
+        } else {
+            return "Student not found.";
+        }
+    } catch (error) {
+        return error.message;
+    }
+}
+
 }
