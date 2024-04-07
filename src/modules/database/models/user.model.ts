@@ -25,6 +25,15 @@ export class User {
   @Prop({ default: null, type: mongoose.Types.ObjectId })
   group_id: ObjectId;
 
+  @Prop({ required: true })
+  sex: string;
+
+  @Prop({ required: true })
+  birth_date: string;
+
+  @Prop({ required: true })
+  address: string;
+
   @Prop({ default: false})
   is_deleted: boolean;
 
