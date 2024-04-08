@@ -11,19 +11,26 @@ export class UsersService extends CrudService<UserDocument> {
     super(userRepository);
   }
 
-  async createUser(createUserDto) {
+  async createUser(createUserDto): Promise<UserDocument> {
     try {
       return await this.userRepository.create(createUserDto);
     } catch (error) {
-      return 'Юзер не создан';
+      return error.message;
     }
   }
 
-  async findUser(createUserDto) {
-    return await this.userRepository.findOne(createUserDto);
+  async findUserById(id: ObjectId): Promise<UserDocument> {
+    try {
+      return await this.userRepository.findById(id);
+    } catch (error) {
+      return error.message;
+    }
   }
 
-  async updateUserById(userDto: UpdateUserDto, userId: ObjectId) {
+  async updateUserById(
+    userDto: UpdateUserDto,
+    userId: ObjectId,
+  ): Promise<UserDocument> {
     try {
       return await this.userRepository.updateOne({ _id: userId.id }, userDto);
     } catch (error) {
@@ -31,9 +38,21 @@ export class UsersService extends CrudService<UserDocument> {
     }
   }
 
-  async deleteUserById(userId: ObjectId) {
+  async deleteUserById(userId: ObjectId): Promise<UserDocument> {
     try {
       return await this.userRepository.deleteOne({ _id: userId.id });
+    } catch (error) {
+      return error.message;
+    }
+  }
+
+  async findAllActiveUsers() {
+    try {
+      const query = {
+        is_deleted: false,
+      };
+
+      return await this.userRepository.find({ query });
     } catch (error) {
       return error.message;
     }
