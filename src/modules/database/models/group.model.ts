@@ -1,17 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Types } from 'mongoose';
-import { ObjectId } from '../../../helpers/types/objectid.type';
+import { CollectionName } from 'src/helpers/enums/collection-names.enum';
 
 @Schema({
-  collection: 'Groups',
+  collection: CollectionName.Group,
   timestamps: {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
   },
 })
 export class Group {
-  _id: ObjectId;
+  _id: Types.ObjectId;
 
   @Prop({ required: true })
   name: string;
@@ -19,7 +19,7 @@ export class Group {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true, default: 0 })
+  @Prop({ default: 0 })
   studentCount: number;
 
   @Prop({ default: false })

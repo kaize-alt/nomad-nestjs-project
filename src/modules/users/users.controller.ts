@@ -13,6 +13,7 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ObjectId } from '../../helpers/types/objectid.type';
 import { UserDocument } from '../database/models/user.model';
+import { createTeacherDto } from './dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -43,9 +44,15 @@ export class UsersController {
     return await this.usersService.findUserById(userId.id);
   }
 
-  @ApiOperation({ summary: 'Получить всех пользователей' })
+  @ApiOperation({ summary: 'Получить всех студентов' })
   @Get('all')
   async getAllUsers() {
     return await this.usersService.findAllActiveUsers();
+  }
+
+  @ApiOperation({ summary: 'Добавить учителя' })
+  @Post('teacher')
+  async registerTeacher(@Param() createTeacherDto: createTeacherDto) {
+    return await this.usersService.createTeacher(createTeacherDto);
   }
 }

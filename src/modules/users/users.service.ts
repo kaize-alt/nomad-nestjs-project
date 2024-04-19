@@ -4,6 +4,7 @@ import { UserDocument } from '../database/models/user.model';
 import { CrudService } from '../../helpers/crud.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ObjectId } from '../../helpers/types/objectid.type';
+import { Roles } from 'src/helpers/enums';
 
 @Injectable()
 export class UsersService extends CrudService<UserDocument> {
@@ -14,6 +15,14 @@ export class UsersService extends CrudService<UserDocument> {
   async createUser(createUserDto): Promise<UserDocument> {
     try {
       return await this.userRepository.create(createUserDto);
+    } catch (error) {
+      return error.message;
+    }
+  }
+
+  async createTeacher(createUserDto): Promise<UserDocument> {
+    try {
+      return await this.userRepository.create({...createUserDto, role: Roles.Teacher});
     } catch (error) {
       return error.message;
     }
@@ -46,10 +55,11 @@ export class UsersService extends CrudService<UserDocument> {
     }
   }
 
-  async findAllActiveUsers() {
+  async findAllActiveUsers(): Promise <UserDocument[]> {
     try {
       const query = {
         is_deleted: false,
+        role: Roles.Student,
       };
 
       return await this.userRepository.find({ query });

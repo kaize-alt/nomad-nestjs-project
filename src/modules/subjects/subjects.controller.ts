@@ -23,7 +23,7 @@ export class SubjectsController {
 
   @ApiOperation({ summary: 'Добавление предмета' })
   @Post('createSubject')
-  async addSubject(@Body() subjectData: CreateSubjectDto): Promise<SubjectDocument> {
+  async addSubject(@Body() subjectData: CreateSubjectDto) {
     return await this.subjectsService.createSubject(subjectData);
   }
 

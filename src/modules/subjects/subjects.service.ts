@@ -15,7 +15,7 @@ export class SubjectsService extends CrudService<SubjectDocument> {
     super(subjectRepository);
     }
 
-    async createSubject(createSubjectDto): Promise<SubjectDocument> {
+    async createSubject(CreateSubjectDto: CreateSubjectDto): Promise<SubjectDocument> {
       try {
         return await this.subjectRepository.create(CreateSubjectDto);
       } catch (error) {

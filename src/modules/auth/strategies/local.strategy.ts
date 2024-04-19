@@ -16,7 +16,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('You are not registered', 'Unauthorized');
     }
-    const asd = user;
-    return asd;
+    return user;
   }
 }

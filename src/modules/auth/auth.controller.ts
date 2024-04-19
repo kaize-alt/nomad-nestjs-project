@@ -23,5 +23,4 @@ export class AuthController {
   async login(@Body() userData: LoginUserDto, @Req() req) {
     return this.authService.login(userData, req.user);
   }
-
 }
