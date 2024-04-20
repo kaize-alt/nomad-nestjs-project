@@ -7,32 +7,44 @@ import {
     Patch,
     Post,
     Put,
+    UseGuards,
   } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { IdValidationPipe } from 'src/helpers/pipes/id-validation.pipe';
 import { ObjectId } from '../../helpers/types/objectid.type';
 import { SubjectDocument } from '../database/models/subjects.model';
 import { CreateSubjectDto } from './dto/create-subject.dto';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateSubjectDto } from '../subjects/dto/update-subject.dto';
+import { Role } from 'src/helpers/decorators/role.decorator';
+import { Roles } from 'src/helpers/enums';
+import { RolesGuard } from 'src/helpers/guards/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Subjects')
 @Controller('subjects')
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Добавление предмета' })
   @Post('createSubject')
   async addSubject(@Body() subjectData: CreateSubjectDto) {
     return await this.subjectsService.createSubject(subjectData);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Получить все предметы' })
   @Get('allSubjects')
   async getAllSubjects() {
     return await this.subjectsService.findAllSubjects();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Получить один предмет по айди' })
   @Get(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -40,6 +52,8 @@ export class SubjectsController {
     return await this.subjectsService.findSubjectById(userId.id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Изменить данные предмета по id' })
   @Put(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -50,6 +64,8 @@ export class SubjectsController {
     return await this.subjectsService.updateSubjectById(updateUserDto, userId);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Удалить предмет по id' })
   @Delete(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
