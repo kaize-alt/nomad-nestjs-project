@@ -5,6 +5,7 @@ import { CrudService } from '../../helpers/crud.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ObjectId } from '../../helpers/types/objectid.type';
 import { Roles } from 'src/helpers/enums';
+import { encodePassword } from 'src/helpers/utils/utils';
 
 @Injectable()
 export class UsersService extends CrudService<UserDocument> {
@@ -12,13 +13,16 @@ export class UsersService extends CrudService<UserDocument> {
     super(userRepository);
   }
 
-  async createUser(createUserDto): Promise<UserDocument> {
+  async createUser(сreateUserDto): Promise<UserDocument> {
     try {
-      return await this.userRepository.create(createUserDto);
+      const password = encodePassword(сreateUserDto.password);
+      console.log(password);
+      return await this.userRepository.create({ ...сreateUserDto, password }); 
     } catch (error) {
       return error.message;
     }
   }
+  
 
   async createTeacher(createUserDto): Promise<UserDocument> {
     try {

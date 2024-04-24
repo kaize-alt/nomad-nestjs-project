@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { genSalt } from 'bcrypt';
 import * as mongoose from 'mongoose';
 import { Types } from 'mongoose';
 import { CollectionName } from 'src/helpers/enums/collection-names.enum';

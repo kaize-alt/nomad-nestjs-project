@@ -2,7 +2,7 @@ import { Controller, Post, UseGuards, Body, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { createUserDto, LoginUserDto } from './dto';
 import { UserDocument } from '../database/models/user.model';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -13,7 +13,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Регистрация' })
   @Post('signup')
-  async signup(@Body() userData: CreateUserDto): Promise<UserDocument> {
+  async signup(@Body() userData: createUserDto): Promise<UserDocument> {
     return await this.authService.signup(userData);
   }
 

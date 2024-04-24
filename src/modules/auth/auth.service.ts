@@ -2,7 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../database/models/user.model';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { LoginUserDto } from './dto';
+import { comparePassword } from 'src/helpers/utils/utils';
 
 @Injectable()
 export class AuthService {
@@ -24,21 +25,36 @@ export class AuthService {
     password: string,
   ): Promise<UserDocument | string> {
     try {
-      const user = await this.usersService.findOne({ email, password });
-      if (!user) {
-        return null;
+      const user = await this.usersService.findOne({ email }); 
+      if (user) {
+        const matched = comparePassword(password, user.password); 
+        if (matched) {
+          return user; 
+        } else {
+          return 'Password incorrect'; 
+        }
+      } else {
+        return 'User not found'; 
       }
-      return user;
     } catch (error) {
-      return error.data;
+      return error.message;
     }
   }
+  
 
   login(userData: LoginUserDto, user: UserDocument) {
+    if (!user) {
+      return {
+        message: "You are not registered",
+        error: "Unauthorized",
+        statusCode: 401
+      };
+    }
     const { email } = userData;
     const payload = { email, user_id: user._id };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
+  
 }

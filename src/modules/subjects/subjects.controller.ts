@@ -27,24 +27,18 @@ import { AuthGuard } from '@nestjs/passport';
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Добавление предмета' })
   @Post('createSubject')
   async addSubject(@Body() subjectData: CreateSubjectDto) {
     return await this.subjectsService.createSubject(subjectData);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Получить все предметы' })
   @Get('allSubjects')
   async getAllSubjects() {
     return await this.subjectsService.findAllSubjects();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Получить один предмет по айди' })
   @Get(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -52,8 +46,6 @@ export class SubjectsController {
     return await this.subjectsService.findSubjectById(userId.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Изменить данные предмета по id' })
   @Put(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -64,8 +56,6 @@ export class SubjectsController {
     return await this.subjectsService.updateSubjectById(updateUserDto, userId);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Удалить предмет по id' })
   @Delete(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
