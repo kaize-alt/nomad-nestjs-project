@@ -49,6 +49,14 @@ export class User {
   @Prop({ required: true })
   address: string;
 
+  @ApiProperty({ type: 'number' })
+  @Prop()
+  loginAttempts: number;
+
+  @ApiProperty({ type: 'number' })
+  @Prop()
+  lockUntil: number;
+
   @ApiProperty({ type: 'boolean' })
   @Prop({ default: false})
   is_deleted: boolean;

@@ -24,12 +24,17 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Создать группу' })
   @Post('create')
   async createGroup(@Body() createGroupDto: CreateGroupDto) {
     return await this.groupsService.createGroup(createGroupDto);
   }
 
+
+  @UseGuards (JwtAuthGuard, RolesGuard)
+  @Role (Roles.Admin)
   @ApiOperation({ summary: 'Получить весь список групп' })
   @Get('all')
   async getAllGroups(): Promise<GroupDocument[]> {

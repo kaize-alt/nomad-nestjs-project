@@ -16,7 +16,6 @@ export class UsersService extends CrudService<UserDocument> {
   async createUser(сreateUserDto): Promise<UserDocument> {
     try {
       const password = encodePassword(сreateUserDto.password);
-      console.log(password);
       return await this.userRepository.create({ ...сreateUserDto, password }); 
     } catch (error) {
       return error.message;
