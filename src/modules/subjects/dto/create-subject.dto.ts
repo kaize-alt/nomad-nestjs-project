@@ -12,15 +12,6 @@ export class CreateSubjectDto {
 
   @ApiProperty({
     required: true,
-    example: '12:00',
-  })
-  @IsNotEmpty()
-  @IsString()
-  
-  time: string;
-
-  @ApiProperty({
-    required: true,
     example: 'TS-5',
   })
   @IsNotEmpty()

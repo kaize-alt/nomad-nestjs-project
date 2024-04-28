@@ -50,4 +50,19 @@ export class CrudRepository<Document> implements Repository<Document> {
     });
   }
 
+    /* Метод для добавления оценки
+    addGrade(grade: Grade): void {
+      this.grades.push(grade);
+      this.updateTotalScore();
+    }*/
+  
+    /* Метод для пересчета totalScore
+    updateTotalScore(): void {
+      let total = 0;
+      this.grades.forEach(grade => {
+        total += grade.value;
+      });
+      this.totalScore = total;
+    }*/
+
 }

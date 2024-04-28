@@ -18,10 +18,7 @@ export class Subject {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
-  time: string;
-
-  @Prop({ required: true })
+  @Prop({ required: false })
   classroom: string;
 
   @Prop({ default: false })

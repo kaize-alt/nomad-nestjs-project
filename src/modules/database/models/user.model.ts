@@ -6,6 +6,27 @@ import { Types } from 'mongoose';
 import { CollectionName } from 'src/helpers/enums/collection-names.enum';
 import { Roles } from 'src/helpers/enums/roles.enum';
 import { ObjectId } from 'src/helpers/types/objectid.type';
+import { SubjectDocument } from './subjects.model';
+
+
+interface Grade {
+  value: number;
+  date: Date;
+  comment?: string;
+}
+
+interface SubjectGrade {
+  subjectId: ObjectId;
+  score: number;
+  totalScore: number;
+  grades: Grade[];
+}
+
+interface SemesterGrade {
+  semester: number;
+  grades: Grade[];
+}
+
 
 @Schema({
   collection: CollectionName.User,
@@ -32,6 +53,15 @@ export class User {
   @ApiProperty({ type: 'string' })
   @Prop({ required: true })
   password: string;
+
+  @ApiProperty({ type: 'string' })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }] })
+  subjects: SubjectDocument[];
+
+  @ApiProperty({ type: 'object' })
+  @Prop({ type: Object }) 
+  subjectGrades: Record<string, SubjectGrade>; 
+
 
   @ApiProperty({ type: 'string' })
   @Prop({ type: mongoose.Types.ObjectId })

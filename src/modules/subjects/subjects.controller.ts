@@ -42,8 +42,8 @@ export class SubjectsController {
   @ApiOperation({ summary: 'Получить один предмет по айди' })
   @Get(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
-  async getSubjectById(@Param() userId): Promise<SubjectDocument> {
-    return await this.subjectsService.findSubjectById(userId.id);
+  async getSubjectById(@Param() subjectId): Promise<SubjectDocument> {
+    return await this.subjectsService.findSubjectById(subjectId.id);
   }
 
   @ApiOperation({ summary: 'Изменить данные предмета по id' })

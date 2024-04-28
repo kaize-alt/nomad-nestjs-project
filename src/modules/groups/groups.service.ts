@@ -7,12 +7,15 @@ import { ObjectId } from '../../helpers/types/objectid.type';
 import { UserRepository } from '../database/repositories/user.repository';
 import { UserDocument } from '../database/models/user.model';
 import { Types } from 'mongoose';
+import { SubjectRepository } from '../database/repositories/subject.repository';
+import { Subject, SubjectDocument } from '../database/models/subjects.model';
 
 @Injectable()
 export class GroupsService extends CrudService<GroupDocument> {
   constructor(
     readonly groupRepository: GroupRepository,
     readonly userRepository: UserRepository,
+    readonly subjectRepository: SubjectRepository
   ) {
     super(groupRepository);
   }
@@ -95,6 +98,30 @@ export class GroupsService extends CrudService<GroupDocument> {
     } catch (error) {
         return error.message;
     }
-}
+  }
 
+  async addSubjectToGroup(subject_id: ObjectId, group_id: ObjectId): Promise<GroupDocument> {
+  
+    try {
+    const subject = await this.subjectRepository.findById(subject_id);
+
+    if (!subject) {
+      throw new Error('Предмет не найден');
+    }
+
+    const group = await this.groupRepository.findById(group_id);
+
+    if (!group) {
+      throw new Error('Группа не найдена');
+    }
+
+    group.subjects.push(subject);
+
+    await group.save();
+
+    return group;
+    } catch (error) {
+        throw new Error(`Ошибка при добавлении предмета в группу: ${error.message}`);
+      }
+    }
 }

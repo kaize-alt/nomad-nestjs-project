@@ -18,14 +18,13 @@ import { Role } from 'src/helpers/decorators/role.decorator';
 import { Roles } from 'src/helpers/enums';
 import { RolesGuard } from 'src/helpers/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import mongoose from 'mongoose';
 
 @ApiTags('Groups')
 @Controller('groups')
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(Roles.Admin)
   @ApiOperation({ summary: 'Создать группу' })
   @Post('create')
   async createGroup(@Body() createGroupDto: CreateGroupDto) {
@@ -33,8 +32,6 @@ export class GroupsController {
   }
 
 
-  @UseGuards (JwtAuthGuard, RolesGuard)
-  @Role (Roles.Admin)
   @ApiOperation({ summary: 'Получить весь список групп' })
   @Get('all')
   async getAllGroups(): Promise<GroupDocument[]> {
@@ -78,5 +75,16 @@ export class GroupsController {
   ) {
     const changeStudent = await this.groupsService.changeStudentGroup(user_id, group_id);
     return changeStudent;
+  }
+
+  @ApiOperation({ summary: 'Добавить предмет в группу' })
+  @Post(':group_id/add-subject')
+  @ApiParam({ name: 'subject_id', type: 'string', required: true })
+  @ApiParam({ name: 'group_id', type: 'string', required: true })
+  async addSubjectToGroup(
+    @Param('subject_id', IdValidationPipe) subject_id: ObjectId,
+    @Param('group_id', IdValidationPipe) group_id: ObjectId,
+  ) {
+      const result = await this.groupsService.addSubjectToGroup(subject_id, group_id);
   }
 }
