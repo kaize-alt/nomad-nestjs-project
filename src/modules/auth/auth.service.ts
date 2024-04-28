@@ -8,7 +8,8 @@ import { comparePassword } from 'src/helpers/utils/utils';
 @Injectable()
 export class AuthService {
   private readonly maxLoginAttempts = 3;
-  private readonly loginBlock = 10 * 60 * 1000;
+  private readonly loginBlock = 10 * 60* 1000;
+
 
   constructor(
     private readonly usersService: UsersService,
@@ -42,10 +43,7 @@ export class AuthService {
 
   async login(userData: LoginUserDto, user: UserDocument) {
     try {
-      console.log("loginAttempts:", user.loginAttempts);
-      console.log("maxLoginAttempts:", this.maxLoginAttempts);
-      console.log("lockUntil:", user.lockUntil);
-      console.log("Current time:", Date.now());
+   
 
         if (!user) {
             throw new NotFoundException("User not found");
@@ -55,19 +53,23 @@ export class AuthService {
             user.loginAttempts = 0;
         }
 
-        if (user.loginAttempts >= this.maxLoginAttempts && user.lockUntil > Date.now()) {
-            const timeUntilUnlock = new Date(user.lockUntil);
-            return {
-                message: `Account locked. Please try again after ${timeUntilUnlock}`,
-                error: "Unauthorized",
-                statusCode: 401
-            };
-        }
+        if (user.loginAttempts >= this.maxLoginAttempts || user.lockUntil && user.lockUntil.getTime() > Date.now()) {
+          const timeUntilUnlock = new Date(Date.now() + this.loginBlock);
+          user.loginAttempts = 0;
+          return {
+              message: `Account locked. Please try again after ${timeUntilUnlock}`,
+              error: "Unauthorized",
+              statusCode: 401
+          };
+      }
+      
 
         const matched = await comparePassword(userData.password, user.password);
         if (matched) {
             user.loginAttempts = 0;
-            user.lockUntil = undefined;
+            user.lockUntil = null;
+
+
 
             await user.save();
 
@@ -78,17 +80,29 @@ export class AuthService {
             };
         } else {
             user.loginAttempts ++;
+            const attemptsLeft = this.maxLoginAttempts - user.loginAttempts;
+
 
             await user.save();
             
-            if (!user.lockUntil || user.lockUntil < Date.now()) {
-              user.lockUntil = Date.now() + this.loginBlock;
-          }          
-            return {
-                message: "Password incorrect",
-                error: "Unauthorized",
-                statusCode: 401
-            };
+            if (user.loginAttempts >= this.maxLoginAttempts) {
+              
+              user.lockUntil = new Date(Date.now() + this.loginBlock);
+              user.loginAttempts = 0;
+              await user.save();
+              
+
+          }     
+          console.log("loginAttempts:", user.loginAttempts);
+          console.log("maxLoginAttempts:", this.maxLoginAttempts);
+          console.log("lockUntil:", user.lockUntil);
+          
+          return {
+            message: "Password incorrect",
+            error: "Unauthorized",
+            statusCode: 401,
+            attemtsLeft: attemptsLeft 
+        };
         }
     } catch (error) {
         return {

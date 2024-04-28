@@ -50,12 +50,12 @@ export class User {
   address: string;
 
   @ApiProperty({ type: 'number' })
-  @Prop()
+  @Prop({ default: 0 })
   loginAttempts: number;
 
-  @ApiProperty({ type: 'number' })
-  @Prop()
-  lockUntil: number;
+  @ApiProperty({ type: 'Date' })
+  @Prop({ default: null })
+  lockUntil: Date | null;
 
   @ApiProperty({ type: 'boolean' })
   @Prop({ default: false})

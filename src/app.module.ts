@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { GroupsModule } from './modules/groups/groups.module';
 import { SubjectsModule } from './modules/subjects/subjects.module';
 
+
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -19,7 +20,7 @@ import { SubjectsModule } from './modules/subjects/subjects.module';
     UsersModule,
     AuthModule, 
     GroupsModule,
-    SubjectsModule
+    SubjectsModule,
   ],
 })
 export class AppModule {}
