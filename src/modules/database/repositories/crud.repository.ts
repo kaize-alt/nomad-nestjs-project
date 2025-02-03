@@ -64,5 +64,4 @@ export class CrudRepository<Document> implements Repository<Document> {
       });
       this.totalScore = total;
     }*/
-
 }

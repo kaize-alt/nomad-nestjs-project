@@ -6,9 +6,7 @@ import { CreateGroupDto } from './dto';
 import { ObjectId } from '../../helpers/types/objectid.type';
 import { UserRepository } from '../database/repositories/user.repository';
 import { UserDocument } from '../database/models/user.model';
-import { Types } from 'mongoose';
 import { SubjectRepository } from '../database/repositories/subject.repository';
-import { Subject, SubjectDocument } from '../database/models/subjects.model';
 
 @Injectable()
 export class GroupsService extends CrudService<GroupDocument> {
@@ -24,7 +22,7 @@ export class GroupsService extends CrudService<GroupDocument> {
     try {
       return await this.groupRepository.create(createGroupDto);
     } catch (error) {
-      return error.message;
+      throw new Error(`Ошибка при создании группы: ${error.message}`);
     }
   }
 
@@ -32,7 +30,7 @@ export class GroupsService extends CrudService<GroupDocument> {
     try {
       return await this.groupRepository.findById(group_id);
     } catch (error) {
-      return error.message;
+      throw new Error(`Ошибка при получении группы: ${error.message}`);
     }
   }
 
@@ -40,88 +38,78 @@ export class GroupsService extends CrudService<GroupDocument> {
     try {
       return await this.groupRepository.deleteOne({ _id: group_id });
     } catch (error) {
-      return error.message;
+      throw new Error(`Ошибка при удалении группы: ${error.message}`);
     }
   }
 
-
-  async addStudentToGroup(
-    student_id: ObjectId,
-    group_id: ObjectId,
-  ): Promise<UserDocument> {
+  async addStudentToGroup(student_id: ObjectId, group_id: ObjectId): Promise<UserDocument> {
     try {
       const result = await this.userRepository.updateOne(
-        { _id: student_id },
-        { group_id: group_id },
+        { _id: student_id, group_id: { $ne: group_id } }, 
+        { group_id: group_id }
       );
 
-      if (result) {
+      if (result.modifiedCount > 0) {
         const group = await this.groupRepository.findById(group_id);
-        group.studentCount += 1;
-        await group.save();
+        if (group) {
+          group.studentCount += 1;
+          await group.save();
+        }
       }
 
       return result;
     } catch (error) {
-      return error.message;
+      throw new Error(`Ошибка при добавлении студента в группу: ${error.message}`);
     }
   }
 
-  async changeStudentGroup(
-    student_id: ObjectId,
-    group_id: ObjectId,
-  ): Promise<UserDocument | string> {
+  async changeStudentGroup(student_id: ObjectId, group_id: ObjectId): Promise<string> {
     try {
-        const student = await this.userRepository.findById(student_id);
-        if (student) {
-            if (student.group_id === group_id) {
-                return "Student is already in the specified group.";
-            } else {
-                if (student.group_id) {
-                    const current_group_id = student.group_id;
-                    await this.userRepository.updateOne(
-                        { _id: student_id },
-                        { $unset: { group_id: "" } }
-                    );
-                    const current_group = await this.groupRepository.findById(current_group_id);
-                    if (current_group) {
-                        current_group.studentCount -= 1;
-                        await current_group.save();
-                    }
-                }
-                await this.addStudentToGroup(student_id, group_id);
-                return "Student group changed successfully.";
-            }
-        } else {
-            return "Student not found.";
+      const student = await this.userRepository.findById(student_id);
+
+      if (!student) return "Студент не найден.";
+
+      if (student.group_id && student.group_id.equals(group_id)) {
+        return "Студент уже в этой группе.";
+      }
+
+      if (student.group_id) {
+        const current_group_id = student.group_id;
+        await this.userRepository.updateOne(
+          { _id: student_id },
+          { $unset: { group_id: "" } }
+        );
+
+        const current_group = await this.groupRepository.findById(current_group_id);
+        if (current_group) {
+          current_group.studentCount -= 1;
+          await current_group.save();
         }
+      }
+
+      await this.addStudentToGroup(student_id, group_id);
+      return "Группа студента успешно изменена.";
     } catch (error) {
-        return error.message;
+      throw new Error(`Ошибка при изменении группы студента: ${error.message}`);
     }
   }
 
   async addSubjectToGroup(subject_id: ObjectId, group_id: ObjectId): Promise<GroupDocument> {
-  
     try {
-    const subject = await this.subjectRepository.findById(subject_id);
+      const subject = await this.subjectRepository.findById(subject_id);
+      if (!subject) throw new Error('Предмет не найден');
 
-    if (!subject) {
-      throw new Error('Предмет не найден');
-    }
+      const group = await this.groupRepository.findById(group_id);
+      if (!group) throw new Error('Группа не найдена');
 
-    const group = await this.groupRepository.findById(group_id);
-
-    if (!group) {
-      throw new Error('Группа не найдена');
-    }
-
-    group.subjects.push(subject);
-
-    await group.save();
-
-    return group;
-    } catch (error) {
-        throw new Error(`Ошибка при добавлении предмета в группу: ${error.message}`);
+      if (!group.subjects.includes(subject._id)) {
+        group.subjects.push(subject._id);
+        await group.save();
       }
+
+      return group;
+    } catch (error) {
+      throw new Error(`Ошибка при добавлении предмета в группу: ${error.message}`);
     }
+  }
 }

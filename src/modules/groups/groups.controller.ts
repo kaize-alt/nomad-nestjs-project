@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   UseGuards,
+  ValidationPipe
 } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -14,11 +15,6 @@ import { CreateGroupDto } from './dto';
 import { GroupDocument } from '../database/models/group.model';
 import { IdValidationPipe } from 'src/helpers/pipes/id-validation.pipe';
 import { ObjectId } from 'src/helpers/types/objectid.type';
-import { Role } from 'src/helpers/decorators/role.decorator';
-import { Roles } from 'src/helpers/enums';
-import { RolesGuard } from 'src/helpers/guards/roles.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import mongoose from 'mongoose';
 
 @ApiTags('Groups')
 @Controller('groups')
@@ -27,29 +23,28 @@ export class GroupsController {
 
   @ApiOperation({ summary: 'Создать группу' })
   @Post('create')
-  async createGroup(@Body() createGroupDto: CreateGroupDto) {
+  async createGroup(@Body(new ValidationPipe()) createGroupDto: CreateGroupDto) {
     return await this.groupsService.createGroup(createGroupDto);
   }
-
 
   @ApiOperation({ summary: 'Получить весь список групп' })
   @Get('all')
   async getAllGroups(): Promise<GroupDocument[]> {
-    return await this.groupsService.find({});
+    return await this.groupsService.findAllGroups();
   }
 
   @ApiOperation({ summary: 'Получить группу по айди' })
   @Get(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
-  async getGroupById(@Param() group_id): Promise<GroupDocument> {
-    return await this.groupsService.findGroupById(group_id.id);
+  async getGroupById(@Param('id', IdValidationPipe) id: ObjectId): Promise<GroupDocument> {
+    return await this.groupsService.findGroupById(id);
   }
 
   @ApiOperation({ summary: 'Удалить группу по айди' })
   @Delete(':id')
   @ApiParam({ name: 'id', type: 'string', required: true })
-  async deleteGroupById(@Param() group_id): Promise<GroupDocument> {
-    return await this.groupsService.deleteGroupById(group_id.id);
+  async deleteGroupById(@Param('id', IdValidationPipe) id: ObjectId): Promise<GroupDocument> {
+    return await this.groupsService.deleteGroupById(id);
   }
 
   @ApiOperation({ summary: 'Добавить студента в группу' })
@@ -60,9 +55,7 @@ export class GroupsController {
     @Param('user_id', IdValidationPipe) user_id: ObjectId,
     @Param('group_id', IdValidationPipe) group_id: ObjectId,
   ) {
-    const updatedStudent = await this.groupsService.addStudentToGroup(user_id, group_id);
-
-    return updatedStudent;
+    return await this.groupsService.addStudentToGroup(user_id, group_id);
   }
 
   @ApiOperation({ summary: 'Изменить группу студента'})
@@ -73,18 +66,15 @@ export class GroupsController {
     @Param('user_id', IdValidationPipe) user_id: ObjectId,
     @Param('group_id', IdValidationPipe) group_id: ObjectId,
   ) {
-    const changeStudent = await this.groupsService.changeStudentGroup(user_id, group_id);
-    return changeStudent;
+    return await this.groupsService.changeStudentGroup(user_id, group_id);
   }
 
   @ApiOperation({ summary: 'Добавить предмет в группу' })
-  @Post(':group_id/add-subject')
-  @ApiParam({ name: 'subject_id', type: 'string', required: true })
-  @ApiParam({ name: 'group_id', type: 'string', required: true })
+  @Post(':group_id/add-subject/:subject_id')
   async addSubjectToGroup(
-    @Param('subject_id', IdValidationPipe) subject_id: ObjectId,
     @Param('group_id', IdValidationPipe) group_id: ObjectId,
+    @Param('subject_id', IdValidationPipe) subject_id: ObjectId,
   ) {
-      const result = await this.groupsService.addSubjectToGroup(subject_id, group_id);
+    return await this.groupsService.addSubjectToGroup(subject_id, group_id);
   }
 }
